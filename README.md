@@ -1,9 +1,7 @@
-<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JDE Mapping Sheet</title>
 <meta name="description" content="Turn any JSON payload into a JD Edwards field mapping sheet in your browser. Free download, no installation.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
