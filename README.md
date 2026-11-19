@@ -8,45 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-<style>
-:root {
-  --bg: #F2F5F5; --surface: #FFFFFF; --sunken: #EAEFEF; --fg: #14211F; --muted: #586966;
-  --line: #D5DDDC; --accent: #0B6B63; --accent-fg: #FFFFFF; --accent-soft: #DAEEEB;
-  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0F1615; --surface: #162120; --sunken: #1B2928; --fg: #E6EEEC; --muted: #93A6A2;
-    --line: #263634; --accent: #4FC9BB; --accent-fg: #07211E; --accent-soft: #1B3A37; color-scheme: dark;
-  }
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
-.wrap { max-width: 880px; margin: 0 auto; padding: 48px 20px 40px; display: flex; flex-direction: column; gap: 44px; }
-h1 { font-size: clamp(30px, 6vw, 44px); line-height: 1.12; letter-spacing: -0.02em; margin: 0 0 14px; text-wrap: balance; }
-h2 { font-size: 22px; letter-spacing: -0.01em; margin: 0 0 14px; }
-h3 { font-size: 16px; margin: 0 0 6px; }
-p { margin: 0 0 12px; max-width: 68ch; }
-.lead { font-size: 18px; color: var(--muted); }
-code { font-family: var(--mono); font-size: 0.88em; background: var(--sunken); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; overflow-wrap: anywhere; }
-.btn { display: inline-block; background: var(--accent); color: var(--accent-fg); font-weight: 600; text-decoration: none; padding: 12px 22px; border-radius: 6px; }
-.btn:hover { filter: brightness(1.08); }
-a:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.note { color: var(--muted); font-size: 14px; margin-top: 12px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
-.card p { font-size: 15px; color: var(--muted); margin: 0; }
-ul.plain { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
-ul.plain li { max-width: 68ch; }
-ol { margin: 0 0 12px; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 68ch; }
-.path { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 0; }
-.path code { display: block; width: fit-content; max-width: 100%; }
-.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-footer { border-top: 1px solid var(--line); padding-top: 18px; color: var(--muted); font-size: 14px; }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-</style>
+
 </head>
 <body>
 <main class="wrap">
