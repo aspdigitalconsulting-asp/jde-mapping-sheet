@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>[hidden]{display:none!important}body{margin:0}</style>
+<title>JDE Mapping Sheet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  /* Layout: payload card on top, two tabs below. Tab 1 is a full-width editable sheet; tab 2 is two panes (payload fields on the left, uploaded Excel rows as drop targets on the right). Both tables have sortable, filterable, resizable columns. */
+  --bg: #F2F5F5;
+  --surface: #FFFFFF;
+  --sunken: #EAEFEF;
+  --fg: #14211F;
+  --muted: #586966;
+  --line: #D5DDDC;
+  --line-strong: #B3C1BF;
+  --accent: #0B6B63;
+  --accent-fg: #FFFFFF;
+  --accent-soft: #DAEEEB;
+  --ok: #1E7A46;
+  --err: #B3261E;
+  --err-soft: #FBE9E7;
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1615; --surface: #162120; --sunken: #1B2928; --fg: #E6EEEC; --muted: #93A6A2;
+    --line: #263634; --line-strong: #3A4F4C; --accent: #4FC9BB; --accent-fg: #07211E; --accent-soft: #1B3A37;
+    --ok: #5BCB8A; --err: #FF8A80; --err-soft: #3A1D1A; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1615; --surface: #162120; --sunken: #1B2928; --fg: #E6EEEC; --muted: #93A6A2;
+  --line: #263634; --line-strong: #3A4F4C; --accent: #4FC9BB; --accent-fg: #07211E; --accent-soft: #1B3A37;
+  --ok: #5BCB8A; --err: #FF8A80; --err-soft: #3A1D1A; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--sans); font-size: 14px; line-height: 1.45;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.app { max-width: 1480px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { margin: 2px 0 0; color: var(--muted); max-width: 70ch; }
+code, .mono { font-family: var(--mono); font-size: 12px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.card > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 16px; font-weight: 600; }
+.card > summary::-webkit-details-marker { display: none; }
+.card > summary::before { content: ""; width: 7px; height: 7px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform .15s; }
+.card[open] > summary::before { transform: rotate(45deg); }
+.payload-body { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+textarea.json {
+  width: 100%; height: 170px; resize: vertical; font-family: var(--mono); font-size: 12px; line-height: 1.5;
+  background: var(--sunken); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+}
+.status { font-weight: 400; color: var(--muted); font-size: 13px; min-width: 0; overflow-wrap: anywhere; }
+.status.err { color: var(--err); }
+.pill-ex { font-size: 11px; font-weight: 500; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 99px; }
+
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.spacer { flex: 1 1 0; }
+.btn {
+  font: inherit; font-size: 13px; font-weight: 500; color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); color: var(--accent-fg); }
+.btn.quiet { border-color: transparent; background: transparent; color: var(--muted); }
+.btn.quiet:hover, .btn.danger:hover { color: var(--err); border-color: var(--err); }
+.btn.armed, .btn.armed:hover { color: var(--err); border-color: var(--err); background: var(--err-soft); }
+input[type="file"] { display: none; }
+select, input[type="search"], .field {
+  font: inherit; font-size: 13px; color: var(--fg); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 10px;
+}
+label.chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.tab {
+  font: inherit; font-weight: 500; font-size: 14px; color: var(--muted); background: none; border: 0; border-bottom: 2px solid transparent;
+  padding: 10px 14px; margin-bottom: -1px; cursor: pointer;
+}
+.tab:hover { color: var(--fg); }
+.tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+
+.panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.panel[hidden] { display: none; }
+.help { color: var(--muted); margin: 0; max-width: 90ch; }
+.meter { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meter i { display: block; width: 90px; height: 6px; background: var(--sunken); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+.meter i b { display: block; height: 100%; background: var(--ok); width: 0; }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.tablewrap.tall { max-height: 68vh; overflow-y: auto; }
+table.grid { border-collapse: separate; border-spacing: 0; table-layout: fixed; width: 100%; }
+.grid th { position: sticky; z-index: 2; background: var(--sunken); text-align: left; padding: 0; font-weight: 600; }
+.grid tr.lab th { top: 0; height: 34px; border-bottom: 1px solid var(--line); }
+.grid tr.fr th { top: 34px; padding: 4px 6px; border-bottom: 1px solid var(--line-strong); }
+.sortbtn {
+  font: inherit; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  background: none; border: 0; cursor: pointer; display: flex; align-items: center; gap: 4px; width: 100%; height: 34px; padding: 0 10px; text-align: left;
+}
+.sortbtn .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.sortbtn .arr { color: var(--accent); font-size: 13px; letter-spacing: 0; }
+.sortbtn:hover { color: var(--fg); }
+.rh { position: absolute; top: 0; bottom: 0; right: -4px; width: 9px; cursor: col-resize; touch-action: none; z-index: 3; }
+.rh::after { content: ""; position: absolute; left: 4px; top: 8px; bottom: 8px; width: 1px; background: var(--line-strong); }
+.rh:hover::after { background: var(--accent); width: 2px; left: 3px; }
+.colf { width: 100%; font: inherit; font-size: 12px; font-weight: 400; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; }
+.colf:focus { border-color: var(--accent); outline: none; }
+.hd { display: flex; align-items: center; height: 34px; }
+.hd .sortbtn { flex: 1 1 auto; min-width: 0; width: auto; padding-left: 2px; }
+.hgrip { flex: none; width: 18px; height: 34px; display: flex; align-items: center; justify-content: center; color: var(--line-strong); cursor: grab; font-size: 11px; letter-spacing: -2px; user-select: none; -webkit-user-select: none; }
+.hgrip:hover { color: var(--accent); }
+.grid th.dropc { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+td.sn { color: var(--muted); font-size: 12px; text-align: right; padding: 9px 10px; font-variant-numeric: tabular-nums; }
+td { padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: color-mix(in srgb, var(--sunken) 55%, transparent); }
+td.st { text-align: center; padding-top: 12px; }
+td.pathc { padding: 8px 8px; }
+td.pathc code { overflow-wrap: anywhere; }
+td.smp { color: var(--muted); font-size: 12px; padding: 8px; }
+td.empty { text-align: center; color: var(--muted); padding: 28px 12px; }
+.ty { font-family: var(--mono); font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 1px 6px; display: inline-block; overflow-wrap: anywhere; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+.dot.on { background: var(--ok); }
+.cell {
+  width: 100%; font: inherit; font-size: 13px; color: var(--fg); background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 6px 8px; display: block;
+}
+.cell.mono { font-family: var(--mono); font-size: 12px; }
+.cell:hover { border-color: var(--line); }
+.cell:focus { border-color: var(--accent); background: var(--surface); outline: none; box-shadow: 0 0 0 2px var(--accent-soft); }
+textarea.cell { resize: none; overflow: hidden; min-height: 32px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+.x { font: inherit; font-size: 16px; line-height: 1; color: var(--muted); background: none; border: 0; border-radius: 4px; width: 26px; height: 26px; cursor: pointer; flex: none; }
+.x:hover { color: var(--err); background: var(--err-soft); }
+
+.split { display: grid; grid-template-columns: minmax(280px, 380px) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 920px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.pane { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.pane h2 { font-size: 14px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.left { position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); max-height: calc(100vh - 24px); }
+@media (max-width: 920px) { .left { position: static; max-height: none; } }
+.chips { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; padding-right: 2px; min-height: 0; max-height: 62vh; }
+.chip {
+  display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 7px 10px; cursor: grab; min-width: 0; user-select: none; -webkit-user-select: none;
+}
+.chip:hover { border-color: var(--accent); }
+.chip.sel { border-color: var(--accent); background: var(--accent-soft); }
+.chip.dragging { opacity: 0.45; }
+.grip { flex: none; width: 10px; height: 16px; color: var(--line-strong); background-image: radial-gradient(currentColor 1.2px, transparent 1.5px); background-size: 5px 5px; }
+.cbody { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cp { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; }
+.cp .par { color: var(--muted); }
+.cp .key { font-weight: 500; }
+.cm { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.cm .sm { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.used { flex: none; font-size: 11px; font-weight: 600; color: var(--accent-fg); background: var(--accent); border-radius: 99px; min-width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; }
+
+.dropin {
+  min-height: 34px; display: flex; align-items: center; gap: 8px; padding: 4px 6px 4px 8px; border: 1px dashed var(--line-strong); border-radius: 4px; color: var(--muted); font-size: 12px;
+}
+.dropin.filled { border-style: solid; border-color: var(--accent); background: var(--accent-soft); color: var(--fg); }
+.dropin.filled code { overflow-wrap: anywhere; flex: 1 1 auto; min-width: 0; }
+.dropin.pick { cursor: pointer; border-color: var(--accent); color: var(--accent); }
+tr.over td { background: var(--accent-soft); }
+tr.over .dropin { border-style: solid; border-color: var(--accent); }
+.example-note { font-size: 12px; color: var(--muted); }
+.credit { margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; text-align: center; }
+
+#toast { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; pointer-events: none; padding: 12px max(16px, env(safe-area-inset-left, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)); }
+#toast span { background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 6px; font-size: 13px; opacity: 0; transform: translateY(6px); transition: opacity .15s, transform .15s; }
+#toast.show span { opacity: 1; transform: none; }
+#copybox { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 20; }
+#copybox[hidden] { display: none; }
+#copybox .box { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; padding: 16px; width: min(720px, 100%); display: flex; flex-direction: column; gap: 10px; }
+#copybox textarea { width: 100%; height: 260px; font-family: var(--mono); font-size: 12px; background: var(--sunken); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div>
+      <h1>JDE Mapping Sheet</h1>
+      <p class="sub">Turn a third-party JSON payload into one row per field, then map each field to a JD Edwards table and alias. Everything runs in your browser.</p>
+    </div>
+    <button class="btn danger" id="resetAll" type="button" title="Clears the payload, all mappings, the Excel data and the saved layout">Reset all</button>
+  </header>
+
+  <details class="card" open id="payloadCard">
+    <summary>
+      Payload
+      <span class="pill-ex" id="pex" hidden>Example payload</span>
+      <span class="status" id="pstatus"></span>
+    </summary>
+    <div class="payload-body">
+      <textarea class="json" id="jsonIn" spellcheck="false" aria-label="JSON payload" placeholder='Paste the JSON payload from the third-party system here'></textarea>
+      <div class="row">
+        <label class="btn" for="jsonFile">Upload .json</label>
+        <input type="file" id="jsonFile" accept=".json,application/json,.txt">
+        <button class="btn" id="fmtBtn" type="button">Format</button>
+        <button class="btn" id="exBtn" type="button">Load example</button>
+        <button class="btn quiet" id="clearJson" type="button">Clear payload</button>
+        <span class="spacer"></span>
+        <label class="chk" for="arrSel">Array notation
+          <select id="arrSel"><option value="[*]">/items[*]/id</option><option value="[0]">/items[0]/id</option><option value="[]">/items[]/id</option><option value="/0">/items/0/id</option><option value="/*">/items/*/id</option></select>
+        </label>
+      </div>
+    </div>
+  </details>
+
+  <nav class="tabs" role="tablist" aria-label="Mapping mode">
+    <button class="tab" role="tab" id="tab-sheet" aria-selected="true" aria-controls="panel-sheet" type="button">Build mapping sheet</button>
+    <button class="tab" role="tab" id="tab-map" aria-selected="false" aria-controls="panel-map" type="button">Map to existing Excel data</button>
+  </nav>
+
+  <section class="panel" id="panel-sheet" role="tabpanel" aria-labelledby="tab-sheet">
+    <p class="help">Every field in the payload becomes a row. Fill in the JDE table, alias, description and any transformation logic. Typing an alias that exists in your Excel data fills in the table and description. Click a heading to sort, type under it to filter, and drag the edge of a heading to resize (double-click the edge to reset), and drag the ⋮⋮ grip to move a column. Sort by # to get back to the original order.</p>
+    <div class="row">
+      <input type="search" id="filterA" placeholder="Search all columns" aria-label="Search all columns" style="min-width:200px">
+      <label class="chk"><input type="checkbox" id="contChk"> Include objects and arrays</label>
+      <span class="meter" id="meterA"><i><b></b></i><span></span></span>
+      <span class="spacer"></span>
+      <button class="btn quiet" id="resetViewA" type="button" title="Restore column order, widths, sort and column filters">Reset view</button>
+      <button class="btn quiet" id="clearSheet" type="button">Clear mappings</button>
+      <button class="btn" id="copyCsvA" type="button">Copy CSV</button>
+      <button class="btn primary" id="copyTsvA" type="button">Copy for Excel</button>
+    </div>
+    <div class="tablewrap tall">
+      <table class="grid" id="sheetTable"><colgroup></colgroup><thead></thead><tbody id="sheetBody"></tbody></table>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-map" role="tabpanel" aria-labelledby="tab-map" hidden>
+    <p class="help">Upload your Excel sheet and it appears here with all of its columns, plus a JSON path column. Drag a field from the payload onto any row and the full path is filled in. On a touch screen, tap a payload field, then tap the row.</p>
+    <div class="split">
+      <div class="pane left">
+        <h2>Payload fields <span class="ty" id="leafCount"></span></h2>
+        <input type="search" id="filterL" placeholder="Filter payload fields" aria-label="Filter payload fields">
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="pane">
+        <h2>Excel data <span class="pill-ex" id="pexJ" hidden>Example data</span> <span class="meter" id="meterB"><i><b></b></i><span></span></span></h2>
+        <div class="row">
+          <label class="btn" for="jdeFile">Upload Excel or CSV</label>
+          <input type="file" id="jdeFile" accept=".xlsx,.xlsm,.xls,.csv,.tsv,.txt">
+          <select id="sheetSel" hidden aria-label="Worksheet"></select>
+          <button class="btn" id="addField" type="button">Add row</button>
+          <input type="search" id="filterR" placeholder="Search all columns" aria-label="Search all columns" style="min-width:160px">
+          <label class="chk"><input type="checkbox" id="unmChk"> Unmapped only</label>
+          <span class="spacer"></span>
+          <button class="btn quiet" id="resetViewB" type="button" title="Restore column order, widths, sort and column filters">Reset view</button>
+          <button class="btn quiet" id="clearMaps" type="button">Clear paths</button>
+          <button class="btn quiet" id="removeXl" type="button">Remove Excel data</button>
+          <button class="btn primary" id="copyTsvB" type="button">Copy for Excel</button>
+        </div>
+        <details>
+          <summary class="example-note" style="cursor:pointer">Paste rows instead (copy from Excel, first row = column headings)</summary>
+          <div class="row" style="margin-top:8px; align-items:flex-start">
+            <textarea class="json" id="pasteJde" style="height:100px; flex:1 1 320px" spellcheck="false" placeholder="Table&#9;Alias&#9;Description&#10;F4211&#9;LITM&#9;2nd Item Number"></textarea>
+            <button class="btn" id="importPaste" type="button">Load pasted rows</button>
+          </div>
+        </details>
+        <div class="tablewrap">
+          <table class="grid" id="fieldTable"><colgroup></colgroup><thead></thead><tbody id="fieldBody"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="credit">Developed by Claude · Designed and ideated by Pranoy.K</footer>
+</div>
+
+<datalist id="dl-table"></datalist>
+<datalist id="dl-alias"></datalist>
+<div id="toast" aria-live="polite"><span id="toastMsg"></span></div>
+<div id="copybox" hidden>
+  <div class="box" role="dialog" aria-label="Copy manually">
+    <strong>Copy this text</strong>
+    <p class="help">Your browser blocked automatic copying. The text is selected below. Press Ctrl+C (or Cmd+C), then paste into Excel.</p>
+    <textarea id="copyArea" readonly></textarea>
+    <div class="row"><span class="spacer"></span><button class="btn primary" id="copyClose" type="button">Done</button></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function () {
+'use strict';
+var LS_KEY = 'jde-mapping-sheet-v2';
+
+var SAMPLE_JSON = {
+  orderId: 'SO-100234', orderDate: '2026-11-10T09:30:00Z', currency: 'INR', poReference: 'PO-77-1190',
+  customer: { id: 'C-4471', name: 'Meridian Tools Pvt Ltd',
+    billTo: { address1: '14 Residency Road', city: 'Bengaluru', postalCode: '560025', country: 'IN' } },
+  lines: [
+    { lineNo: 1, itemNumber: 'SKU-8812', description: 'Torque wrench 3/8in', quantity: 24, unitPrice: 149.5, uom: 'EA', requestedDate: '2026-11-20', tags: ['tools', 'hand'] },
+    { lineNo: 2, itemNumber: 'SKU-2031', description: 'Socket set 40pc', quantity: 10, unitPrice: 89, uom: 'EA', requestedDate: '2026-11-22', discount: { type: 'PCT', value: 5 } }
+  ],
+  shipping: { method: 'SURFACE', carrierCode: 'BLR-07' },
+  notes: null
+};
+var SAMPLE_JDE = [
+  ['F4201', 'DOCO', 'Document (Order No, Invoice, etc.)'], ['F4201', 'DCTO', 'Order Type'], ['F4201', 'AN8', 'Address Number (Sold To)'],
+  ['F4201', 'TRDJ', 'Order Date'], ['F4201', 'CRCD', 'Currency Code - From'], ['F4201', 'VR01', 'Reference'],
+  ['F4211', 'LNID', 'Line Number'], ['F4211', 'LITM', '2nd Item Number'], ['F4211', 'DSC1', 'Description'],
+  ['F4211', 'UORG', 'Units - Order/Transaction Quantity'], ['F4211', 'UPRC', 'Amount - Unit Price'],
+  ['F4211', 'UOM', 'Unit of Measure as Input'], ['F4211', 'DRQJ', 'Date - Requested'],
+  ['F0116', 'ADD1', 'Address Line 1'], ['F0116', 'CTY1', 'City'], ['F0116', 'ADDZ', 'Zip Code - Postal'], ['F0116', 'CTR', 'Country']
+];
+var SAMPLE_MAPS = {
+  '/poReference': { table: 'F4201', alias: 'VR01', desc: 'Reference', logic: '' },
+  '/orderDate': { table: 'F4201', alias: 'TRDJ', desc: 'Order Date', logic: 'Convert ISO 8601 to JDE Julian date (CYYDDD).' },
+  '/currency': { table: 'F4201', alias: 'CRCD', desc: 'Currency Code - From', logic: '' },
+  '/lines[*]/itemNumber': { table: 'F4211', alias: 'LITM', desc: '2nd Item Number', logic: 'Resolve to Short Item Number through the F4104 cross-reference.' }
+};
+var SAMPLE_PATHS = { VR01: '/poReference', TRDJ: '/orderDate', CRCD: '/currency', LITM: '/lines[*]/itemNumber', UORG: '/lines[*]/quantity', UPRC: '/lines[*]/unitPrice' };
+
+var S = { jsonText: '', rows: [], byPath: {}, maps: {}, xl: { cols: [], rows: [] }, selected: null, tab: 'sheet', arr: '[*]',
+  containers: false, filterA: '', filterL: '', filterR: '', onlyUnmapped: false, sampleJson: false, sampleJde: false, jsonErr: '' };
+var G = {
+  sheet: { sel: '#sheetTable', body: '#sheetBody', cols: [], widths: null, filters: {}, sort: null },
+  xl: { sel: '#fieldTable', body: '#fieldBody', cols: [], widths: null, filters: {}, sort: null }
+};
+
+function $(s) { return document.querySelector(s); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function uid() { return Math.random().toString(36).slice(2, 10); }
+function fmt(p) { return S.arr === '[*]' ? p : p.split('[*]').join(S.arr); }
+function trunc(v, n) { var s = v === undefined || v === null ? '' : String(v); n = n || 48; return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+function wbrPath(p) { return esc(p).replace(/\//g, '/<wbr>'); }
+
+/* ---------- path helpers (paths look like /invoicePeriod/startDate, arrays like /lines[*]/itemNumber) ---------- */
+function legacyPath(p) {
+  return p.replace(/^\$/, '').replace(/\['((?:[^'\\]|\\.)*)'\]/g, function (_, k) { return '/' + k.replace(/\\'/g, "'"); }).replace(/\.([A-Za-z_]\w*)/g, '/$1');
+}
+function normPath(p) {
+  p = String(p == null ? '' : p).trim();
+  if (!p) return '';
+  if (p.charAt(0) === '$') p = legacyPath(p);
+  if (p.charAt(0) !== '/' && p.charAt(0) !== '[') return '';
+  return p.replace(/\[(\d+|)\]/g, '[*]').replace(/\/(?:\d+|\*)(?=\/|$)/g, '[*]');
+}
+
+/* ---------- persistence (per-viewer convenience only) ---------- */
+function save() {
+  clearTimeout(save.t);
+  save.t = setTimeout(function () {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({ jsonText: S.jsonText, maps: S.maps, xl: S.xl, tab: S.tab, arr: S.arr, sampleJson: S.sampleJson, sampleJde: S.sampleJde, widths: { sheet: G.sheet.widths, xl: G.xl.widths }, order: { sheet: G.sheet.order, xl: G.xl.order } }));
+    } catch (e) {}
+  }, 300);
+}
+function seedExample() {
+  S.jsonText = JSON.stringify(SAMPLE_JSON, null, 2);
+  S.maps = JSON.parse(JSON.stringify(SAMPLE_MAPS));
+  S.xl = { cols: ['Table', 'Alias', 'Description'], rows: SAMPLE_JDE.map(function (r) {
+    return { id: uid(), cells: [r[0], r[1], r[2]], path: SAMPLE_PATHS[r[1]] || '', logic: r[1] === 'TRDJ' ? 'Convert ISO 8601 to JDE Julian date (CYYDDD).' : '' };
+  }) };
+  S.sampleJson = true; S.sampleJde = true;
+  resetGrid('xl');
+}
+function loadState() {
+  var d = null;
+  try { d = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) {}
+  if (d && typeof d.jsonText === 'string' && ((d.xl && Array.isArray(d.xl.cols)) || Array.isArray(d.jde))) {
+    S.jsonText = d.jsonText;
+    S.maps = {};
+    Object.keys(d.maps || {}).forEach(function (k) { S.maps[normPath(k) || k] = d.maps[k]; });
+    if (d.xl && Array.isArray(d.xl.cols)) S.xl = d.xl;
+    else S.xl = { cols: ['Table', 'Alias', 'Description'], rows: d.jde.map(function (f) { return { id: f.id || uid(), cells: [f.table || '', f.alias || '', f.desc || ''], path: f.path || '', logic: f.logic || '' }; }) };
+    S.xl.rows.forEach(function (r) { r.path = normPath(r.path); });
+    S.tab = d.tab === 'map' ? 'map' : 'sheet';
+    S.arr = d.arr || '[*]'; S.sampleJson = !!d.sampleJson; S.sampleJde = !!d.sampleJde;
+    function okW(w) { return w && typeof w === 'object' && !Array.isArray(w) ? w : null; }
+    if (d.widths) { G.sheet.widths = okW(d.widths.sheet); G.xl.widths = okW(d.widths.xl); }
+    if (d.order) { G.sheet.order = Array.isArray(d.order.sheet) ? d.order.sheet : null; G.xl.order = Array.isArray(d.order.xl) ? d.order.xl : null; }
+  }
+}
+
+/* ---------- JSON -> rows ---------- */
+function keySeg(k) { return '/' + k.replace(/~/g, '~0').replace(/\//g, '~1'); }
+function typeOf(v) { return v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v; }
+function infer(values, path, out, skip) {
+  var types = [], objs = [], arrs = [], sample;
+  values.forEach(function (v) {
+    var t = typeOf(v);
+    if (types.indexOf(t) < 0) types.push(t);
+    if (t === 'object') objs.push(v); else if (t === 'array') arrs.push(v); else if (v !== null && sample === undefined) sample = v;
+  });
+  var items = [];
+  arrs.forEach(function (a) { a.forEach(function (x) { items.push(x); }); });
+  var itemsContainers = items.some(function (x) { return x !== null && typeof x === 'object'; });
+  var container = objs.length > 0 || itemsContainers;
+  var label = types.map(function (t) {
+    if (t !== 'array') return t;
+    var it = []; items.forEach(function (x) { var tt = typeOf(x); if (it.indexOf(tt) < 0) it.push(tt); });
+    return it.length ? 'array<' + it.join('|') + '>' : 'array';
+  }).join(' | ');
+  if (sample === undefined && arrs.length && !itemsContainers) {
+    for (var i = 0; i < items.length; i++) { if (items[i] !== null) { sample = items[i]; break; } }
+  }
+  if (!skip) out.push({ path: path, kind: container ? 'container' : 'value', types: label, sample: sample, count: values.length });
+  if (objs.length) {
+    var keys = [], seen = {};
+    objs.forEach(function (o) { Object.keys(o).forEach(function (k) { if (!seen[k]) { seen[k] = 1; keys.push(k); } }); });
+    keys.forEach(function (k) {
+      var vals = [];
+      objs.forEach(function (o) { if (Object.prototype.hasOwnProperty.call(o, k)) vals.push(o[k]); });
+      infer(vals, path + keySeg(k), out, false);
+    });
+  }
+  if (itemsContainers) infer(items, path + '[*]', out, false);
+}
+function rebuild() {
+  var t = S.jsonText.trim();
+  if (!t) { S.rows = []; S.byPath = {}; S.jsonErr = ''; return; }
+  var data;
+  try { data = JSON.parse(t); } catch (e) { S.jsonErr = e.message; return; }
+  if (data === null || typeof data !== 'object') { S.jsonErr = 'The payload must be an object or an array.'; return; }
+  S.jsonErr = '';
+  var out = [];
+  if (Array.isArray(data)) infer(data, '[*]', out, false); else infer([data], '', out, true);
+  S.rows = out; S.byPath = {};
+  out.forEach(function (r) { S.byPath[r.path] = r; });
+}
+
+/* ---------- copy / export ---------- */
+function clean(c) { return String(c == null ? '' : c).replace(/[\t\r\n]+/g, ' '); }
+function toTsv(rows) { return rows.map(function (r) { return r.map(clean).join('\t'); }).join('\n'); }
+function toCsv(rows) {
+  return rows.map(function (r) { return r.map(function (c) { c = String(c == null ? '' : c); return /[",\n\r]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(','); }).join('\n');
+}
+var toastT;
+function toast(msg) {
+  $('#toastMsg').textContent = msg; $('#toast').classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(function () { $('#toast').classList.remove('show'); }, 2600);
+}
+function showCopyBox(text) {
+  var box = $('#copybox'), ta = $('#copyArea');
+  ta.value = text; box.hidden = false; ta.focus(); ta.select();
+}
+function copyText(text, msg) {
+  var p;
+  try { p = navigator.clipboard.writeText(text); } catch (e) { p = Promise.reject(e); }
+  p.then(function () { toast(msg); }, function () { showCopyBox(text); });
+}
+function sheetData() {
+  var rows = S.rows.filter(function (r) { return S.containers || r.kind === 'value'; });
+  var data = [['JSON Path', 'Data Type', 'Sample Value', 'JDE Table', 'JDE Alias', 'Description', 'Logic / Remarks']];
+  rows.forEach(function (r) {
+    var m = S.maps[r.path] || {};
+    data.push([fmt(r.path), r.types, r.sample === undefined ? '' : r.sample, m.table || '', m.alias || '', m.desc || '', m.logic || '']);
+  });
+  return data;
+}
+function fieldData() {
+  var data = [S.xl.cols.concat(['JSON Path', 'JSON Type', 'Sample Value', 'Logic / Remarks'])];
+  S.xl.rows.forEach(function (f) {
+    var r = f.path ? S.byPath[f.path] : null;
+    data.push(f.cells.concat([f.path ? fmt(f.path) : '', r ? r.types : '', r && r.sample !== undefined ? r.sample : '', f.logic || '']));
+  });
+  return data;
+}
+
+/* ---------- Excel / CSV import ---------- */
+function parseDelimited(text) {
+  var first = text.split(/\r?\n/, 1)[0] || '';
+  var d = first.indexOf('\t') >= 0 ? '\t' : (first.split(';').length > first.split(',').length ? ';' : ',');
+  var rows = [], row = [], cur = '', q = false;
+  for (var i = 0; i < text.length; i++) {
+    var c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === d) { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); cur = ''; rows.push(row); row = []; }
+    else cur += c;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows;
+}
+var lastWb = null, lastName = '';
+function rowsToSheet(rows) {
+  rows = rows.filter(function (r) { return r.some(function (c) { return String(c == null ? '' : c).trim() !== ''; }); });
+  if (!rows.length) return null;
+  var width = 0; rows.forEach(function (r) { if (r.length > width) width = r.length; });
+  var head = [];
+  for (var i = 0; i < width; i++) { var h = rows[0][i] == null ? '' : String(rows[0][i]).trim(); head.push(h || 'Column ' + (i + 1)); }
+  var pi = -1, li = -1;
+  head.forEach(function (h, i) { if (pi < 0 && /json.*path|^path$/i.test(h)) pi = i; else if (li < 0 && /remark|logic/i.test(h)) li = i; });
+  var keep = [];
+  head.forEach(function (h, i) { if (i === pi || i === li || /^json type$/i.test(h) || /^sample value$/i.test(h)) return; keep.push(i); });
+  var data = rows.slice(1).map(function (r) {
+    return { id: uid(), cells: keep.map(function (i) { return r[i] == null ? '' : String(r[i]).trim(); }), path: pi >= 0 ? normPath(r[pi]) : '', logic: li >= 0 && r[li] != null ? String(r[li]).trim() : '' };
+  });
+  return { cols: keep.map(function (i) { return head[i]; }), rows: data };
+}
+function importSheet(rows, label) {
+  var sh = rowsToSheet(rows);
+  if (!sh || !sh.cols.length || !sh.rows.length) { toast('No data rows found. Put column headings in the first row.'); return; }
+  var old = {};
+  if (!S.sampleJde) S.xl.rows.forEach(function (r) { old[r.cells.join('|').toLowerCase()] = r; });
+  sh.rows.forEach(function (r) { var o = old[r.cells.join('|').toLowerCase()]; if (o) { if (!r.path) r.path = o.path; if (!r.logic) r.logic = o.logic; } });
+  S.xl = sh; S.sampleJde = false;
+  resetGrid('xl'); buildHead('xl');
+  renderFields(); renderLeft(); renderDatalists(); renderStatus(); save();
+  toast('Loaded ' + sh.rows.length + ' rows and ' + sh.cols.length + ' columns' + (label ? ' from ' + label : '') + '.');
+}
+function fillSheetSel(names, cur) {
+  var el = $('#sheetSel');
+  el.innerHTML = names.map(function (n) { return '<option value="' + esc(n) + '"' + (n === cur ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('');
+  el.hidden = names.length < 2;
+}
+function readSheet(name) {
+  var rows = XLSX.utils.sheet_to_json(lastWb.Sheets[name], { header: 1, defval: '', raw: false });
+  importSheet(rows, lastName + (lastWb.SheetNames.length > 1 ? ' (' + name + ')' : ''));
+}
+function handleFieldFile(file) {
+  var name = file.name.toLowerCase(), rd = new FileReader();
+  lastName = file.name;
+  if (/\.(xlsx|xlsm|xls)$/.test(name)) {
+    if (!window.XLSX) { toast('The Excel reader did not load. Save the sheet as CSV and upload that.'); return; }
+    rd.onload = function () {
+      try {
+        lastWb = XLSX.read(rd.result, { type: 'array' });
+        fillSheetSel(lastWb.SheetNames, lastWb.SheetNames[0]);
+        readSheet(lastWb.SheetNames[0]);
+      } catch (e) { toast('Could not read that workbook.'); }
+    };
+    rd.readAsArrayBuffer(file);
+  } else {
+    lastWb = null; fillSheetSel([], '');
+    rd.onload = function () { importSheet(parseDelimited(String(rd.result)), file.name); };
+    rd.readAsText(file);
+  }
+}
+function colIdx(re) { for (var i = 0; i < S.xl.cols.length; i++) { if (re.test(S.xl.cols[i])) return i; } return -1; }
+/* Table / alias / description columns are found by heading, so any sheet layout works. */
+function jdeList() {
+  var t = colIdx(/table/i), a = colIdx(/alias/i), d = colIdx(/desc/i);
+  if (a < 0) return [];
+  return S.xl.rows.map(function (r) { return { table: t >= 0 ? r.cells[t] || '' : '', alias: r.cells[a] || '', desc: d >= 0 ? r.cells[d] || '' : '' }; })
+    .filter(function (f) { return f.alias; });
+}
+
+/* ---------- grid: resizable, sortable, filterable columns ---------- */
+function sheetCols() {
+  return [
+    { k: 'sn', label: '#', w: 60, nofilter: true, tip: 'Sort by # to restore the original order' },
+    { k: 'status', label: 'Mapped', w: 96, type: 'status' }, { k: 'path', label: 'JSON path', w: 280 }, { k: 'type', label: 'Type', w: 120 },
+    { k: 'sample', label: 'Sample', w: 190 }, { k: 'table', label: 'JDE table', w: 110 }, { k: 'alias', label: 'JDE alias', w: 110 },
+    { k: 'desc', label: 'Description', w: 230 }, { k: 'logic', label: 'Logic / remarks', w: 280 }
+  ];
+}
+function xlCols() {
+  var c = [{ k: 'sn', label: '#', w: 60, nofilter: true, tip: 'Sort by # to restore the original order' },
+    { k: 'status', label: 'Mapped', w: 96, type: 'status' }, { k: 'path', label: 'JSON path', w: 310 }];
+  S.xl.cols.forEach(function (h, i) { c.push({ k: 'c' + i, label: h, w: 150 }); });
+  c.push({ k: 'logic', label: 'Logic / remarks', w: 230 });
+  c.push({ k: 'del', label: '', w: 44, plain: true });
+  return c;
+}
+function resetGrid(name) { var g = G[name]; g.widths = null; g.filters = {}; g.sort = null; g.order = null; }
+function resetView(name) {
+  resetGrid(name); buildHead(name); (name === 'sheet' ? renderSheet : renderFields)(); save(); toast('View reset.');
+}
+function orderCols(defs, order) {
+  if (!order) return defs;
+  var by = {}, out = [];
+  defs.forEach(function (d) { by[d.k] = d; });
+  order.forEach(function (k) { if (by[k] && k !== 'del') { out.push(by[k]); delete by[k]; } });
+  defs.forEach(function (d) { if (by[d.k] && d.k !== 'del') out.push(d); });
+  return out.concat(defs.filter(function (d) { return d.k === 'del'; }));
+}
+function applyWidths(name) {
+  var g = G[name], t = $(g.sel), cols = t.querySelectorAll('col'), sum = 0;
+  g.cols.forEach(function (c, i) { var w = g.widths[c.k]; if (cols[i]) cols[i].style.width = w + 'px'; sum += w; });
+  t.style.width = sum + 'px';
+}
+function updateSortUI(name) {
+  var g = G[name];
+  $(g.sel).querySelectorAll('.sortbtn').forEach(function (b) {
+    var on = g.sort && g.sort.k === b.dataset.k;
+    b.querySelector('.arr').textContent = on ? (g.sort.dir === 'asc' ? '↑' : '↓') : '';
+    b.closest('th').setAttribute('aria-sort', on ? (g.sort.dir === 'asc' ? 'ascending' : 'descending') : 'none');
+  });
+}
+function buildHead(name) {
+  var g = G[name], t = $(g.sel);
+  g.cols = orderCols(name === 'sheet' ? sheetCols() : xlCols(), g.order);
+  g.order = g.cols.map(function (c) { return c.k; });
+  if (!g.widths || Array.isArray(g.widths)) g.widths = {};
+  g.cols.forEach(function (c) { if (!g.widths[c.k]) g.widths[c.k] = c.w; });
+  t.querySelector('colgroup').innerHTML = g.cols.map(function () { return '<col>'; }).join('');
+  t.querySelector('thead').innerHTML = '<tr class="lab">' + g.cols.map(function (c) {
+    if (c.plain) return '<th></th>';
+    return '<th data-k="' + esc(c.k) + '"><div class="hd"><span class="hgrip" draggable="true" data-k="' + esc(c.k) + '" title="Drag to move this column">⋮⋮</span>' +
+      '<button type="button" class="sortbtn" data-k="' + esc(c.k) + '" title="' + esc(c.tip || 'Sort by ' + c.label) + '"><span class="lbl">' + esc(c.label) + '</span><span class="arr"></span></button></div>' +
+      '<span class="rh" data-k="' + esc(c.k) + '" title="Drag to resize, double-click to reset"></span></th>';
+  }).join('') + '</tr><tr class="fr">' + g.cols.map(function (c) {
+    if (c.plain || c.nofilter) return '<th></th>';
+    var v = g.filters[c.k] || '';
+    if (c.type === 'status') {
+      return '<th><select class="colf" data-k="status" aria-label="Filter by mapped state"><option value="">All</option><option value="mapped"' + (v === 'mapped' ? ' selected' : '') + '>Mapped</option><option value="unmapped"' + (v === 'unmapped' ? ' selected' : '') + '>Unmapped</option></select></th>';
+    }
+    return '<th><input class="colf" type="text" data-k="' + esc(c.k) + '" placeholder="Filter" value="' + esc(v) + '" aria-label="Filter ' + esc(c.label) + '"></th>';
+  }).join('') + '</tr>';
+  applyWidths(name); updateSortUI(name);
+}
+function moveCol(name, from, to) {
+  var g = G[name], order = g.cols.map(function (c) { return c.k; });
+  var i = order.indexOf(from), j = order.indexOf(to);
+  if (i < 0 || j < 0 || i === j) return;
+  order.splice(i, 1); order.splice(j, 0, from);
+  g.order = order; buildHead(name); (name === 'sheet' ? renderSheet : renderFields)(); save();
+}
+var dragCol = null;
+function bindGrid(name, renderFn) {
+  var g = G[name], head = $(g.sel).querySelector('thead');
+  function clearDrop() { head.querySelectorAll('.dropc').forEach(function (x) { x.classList.remove('dropc'); }); }
+  head.addEventListener('click', function (e) {
+    var b = e.target.closest('.sortbtn'); if (!b) return;
+    var k = b.dataset.k;
+    if (!g.sort || g.sort.k !== k) g.sort = { k: k, dir: 'asc' }; else if (g.sort.dir === 'asc') g.sort.dir = 'desc'; else g.sort = null;
+    updateSortUI(name); renderFn();
+  });
+  head.addEventListener('input', function (e) { var f = e.target.closest('.colf'); if (!f || f.tagName === 'SELECT') return; g.filters[f.dataset.k] = f.value; renderFn(); });
+  head.addEventListener('change', function (e) { var f = e.target.closest('.colf'); if (!f || f.tagName !== 'SELECT') return; g.filters[f.dataset.k] = f.value; renderFn(); });
+  head.addEventListener('dblclick', function (e) {
+    var h = e.target.closest('.rh'); if (!h) return;
+    var c = g.cols.filter(function (x) { return x.k === h.dataset.k; })[0];
+    if (c) { g.widths[c.k] = c.w; applyWidths(name); autosizeAll($(g.body)); save(); }
+  });
+  head.addEventListener('pointerdown', function (e) {
+    var h = e.target.closest('.rh'); if (!h) return;
+    e.preventDefault();
+    var k = h.dataset.k, x0 = e.clientX, w0 = g.widths[k];
+    try { h.setPointerCapture(e.pointerId); } catch (err) {}
+    function mv(ev) { g.widths[k] = Math.max(56, Math.round(w0 + ev.clientX - x0)); applyWidths(name); }
+    function up() {
+      h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); h.removeEventListener('pointercancel', up);
+      autosizeAll($(g.body)); save();
+    }
+    h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up);
+  });
+  /* drag a column grip onto another heading to move the column there */
+  head.addEventListener('dragstart', function (e) {
+    var gr = e.target.closest('.hgrip'); if (!gr) return;
+    dragCol = { name: name, k: gr.dataset.k };
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', gr.dataset.k); e.dataTransfer.setDragImage(gr.closest('th'), 14, 14); } catch (err) {}
+  });
+  head.addEventListener('dragover', function (e) {
+    if (!dragCol || dragCol.name !== name) return;
+    var th = e.target.closest('tr.lab th'); if (!th || !th.dataset.k) return;
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+    clearDrop(); if (th.dataset.k !== dragCol.k) th.classList.add('dropc');
+  });
+  head.addEventListener('dragleave', function (e) { if (!head.contains(e.relatedTarget)) clearDrop(); });
+  head.addEventListener('drop', function (e) {
+    if (!dragCol || dragCol.name !== name) return;
+    e.preventDefault();
+    var th = e.target.closest('tr.lab th'), from = dragCol.k;
+    dragCol = null; clearDrop();
+    if (th && th.dataset.k) moveCol(name, from, th.dataset.k);
+  });
+  head.addEventListener('dragend', function () { dragCol = null; clearDrop(); });
+}
+function colMatch(g, getter, item) {
+  for (var k in g.filters) {
+    var v = g.filters[k]; if (!v) continue;
+    var s = getter(item, k);
+    if (k === 'status') { if (s !== v) return false; }
+    else if (s.toLowerCase().indexOf(v.toLowerCase()) < 0) return false;
+  }
+  return true;
+}
+function sortList(g, list, getter) {
+  if (!g.sort) return list;
+  var k = g.sort.k, d = g.sort.dir === 'desc' ? -1 : 1;
+  return list.slice().sort(function (a, b) { return d * getter(a, k).localeCompare(getter(b, k), undefined, { numeric: true, sensitivity: 'base' }); });
+}
+function autosize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+function autosizeAll(root) {
+  if (!root || !root.offsetParent) return;
+  var els = root.querySelectorAll('textarea.cell'), i;
+  for (i = 0; i < els.length; i++) els[i].style.height = 'auto';
+  for (i = 0; i < els.length; i++) els[i].style.height = els[i].scrollHeight + 'px';
+}
+
+/* ---------- rendering ---------- */
+function leafRows() { return S.rows.filter(function (r) { return r.kind === 'value'; }); }
+function renderStatus() {
+  var el = $('#pstatus');
+  if (S.jsonErr) { el.className = 'status err'; el.textContent = 'Invalid JSON: ' + S.jsonErr; }
+  else if (!S.rows.length) { el.className = 'status'; el.textContent = 'Paste or upload a payload to start.'; }
+  else {
+    var leaves = leafRows().length, arrays = S.rows.filter(function (r) { return r.types.indexOf('array') >= 0; }).length;
+    el.className = 'status'; el.textContent = leaves + ' fields' + (arrays ? ', ' + arrays + ' array' + (arrays > 1 ? 's' : '') : '');
+  }
+  $('#pex').hidden = !S.sampleJson;
+  $('#pexJ').hidden = !S.sampleJde;
+}
+function setMeter(sel, done, total, noun) {
+  var m = $(sel);
+  m.querySelector('b').style.width = total ? Math.round(done / total * 100) + '%' : '0';
+  m.querySelector('span').textContent = done + ' of ' + total + ' ' + noun;
+}
+function updateProgress() {
+  var leaves = leafRows();
+  var done = leaves.filter(function (r) { var m = S.maps[r.path]; return m && m.table && m.alias; }).length;
+  setMeter('#meterA', done, leaves.length, 'fields mapped');
+  setMeter('#meterB', S.xl.rows.filter(function (f) { return f.path; }).length, S.xl.rows.length, 'mapped');
+}
+function inp(attrs, val, cls, list) {
+  return '<input class="cell ' + cls + '" ' + attrs + ' value="' + esc(val || '') + '"' + (list ? ' list="' + list + '"' : '') + ' autocomplete="off" spellcheck="false">';
+}
+function ta(attrs, val) {
+  return '<textarea class="cell" rows="1" ' + attrs + ' spellcheck="false">' + esc(val || '') + '</textarea>';
+}
+var snA = {}, snX = {};
+function valA(r, k) {
+  var m = S.maps[r.path] || {};
+  switch (k) {
+    case 'sn': return String(snA[r.path] || 0);
+    case 'status': return (m.table && m.alias) ? 'mapped' : 'unmapped';
+    case 'path': return fmt(r.path);
+    case 'type': return r.types;
+    case 'sample': return r.sample === undefined ? '' : String(r.sample);
+    default: return m[k] || '';
+  }
+}
+function visibleRowsA() {
+  var q = S.filterA.toLowerCase(), g = G.sheet;
+  var base = S.rows.filter(function (r) { return S.containers || r.kind === 'value'; });
+  snA = {}; base.forEach(function (r, i) { snA[r.path] = i + 1; });
+  var list = base.filter(function (r) {
+    if (q) {
+      var m = S.maps[r.path] || {};
+      if ((fmt(r.path) + ' ' + (m.table || '') + ' ' + (m.alias || '') + ' ' + (m.desc || '') + ' ' + (m.logic || '')).toLowerCase().indexOf(q) < 0) return false;
+    }
+    return colMatch(g, valA, r);
+  });
+  return sortList(g, list, valA);
+}
+function cellA(k, r, x) {
+  switch (k) {
+    case 'sn': return '<td class="sn">' + x.sn + '</td>';
+    case 'status': return '<td class="st"><span class="dot' + (x.done ? ' on' : '') + '" title="' + (x.done ? 'Mapped' : 'Not mapped yet') + '"></span></td>';
+    case 'path': return '<td class="pathc"><code>' + wbrPath(fmt(r.path)) + '</code></td>';
+    case 'type': return '<td><span class="ty">' + esc(r.types) + '</span></td>';
+    case 'sample': return '<td class="smp">' + esc(trunc(r.sample, 400)) + '</td>';
+    case 'table': return '<td>' + inp(x.a + 'data-f="table"', x.m.table, 'mono', 'dl-table') + '</td>';
+    case 'alias': return '<td>' + inp(x.a + 'data-f="alias"', x.m.alias, 'mono', 'dl-alias') + '</td>';
+    case 'desc': return '<td>' + ta(x.a + 'data-f="desc"', x.m.desc) + '</td>';
+    default: return '<td>' + ta(x.a + 'data-f="logic"', x.m.logic) + '</td>';
+  }
+}
+function renderSheet() {
+  var body = $('#sheetBody'), n = G.sheet.cols.length;
+  if (!S.rows.length) { body.innerHTML = '<tr><td colspan="' + n + '" class="empty">Add a JSON payload above to generate one row per field.</td></tr>'; updateProgress(); return; }
+  var rows = visibleRowsA();
+  if (!rows.length) { body.innerHTML = '<tr><td colspan="' + n + '" class="empty">No rows match the filters.</td></tr>'; updateProgress(); return; }
+  body.innerHTML = rows.map(function (r) {
+    var m = S.maps[r.path] || {}, x = { m: m, done: !!(m.table && m.alias), a: 'data-p="' + esc(r.path) + '" ', sn: snA[r.path] };
+    return '<tr>' + G.sheet.cols.map(function (c) { return cellA(c.k, r, x); }).join('') + '</tr>';
+  }).join('');
+  updateProgress(); autosizeAll(body);
+}
+function splitPath(p) {
+  var idx = p.lastIndexOf('/');
+  return idx < 0 ? ['', p] : [p.slice(0, idx + 1), p.slice(idx + 1)];
+}
+function renderLeft() {
+  var q = S.filterL.toLowerCase(), used = {};
+  S.xl.rows.forEach(function (f) { if (f.path) used[f.path] = (used[f.path] || 0) + 1; });
+  var leaves = leafRows();
+  $('#leafCount').textContent = leaves.length;
+  var list = leaves.filter(function (r) { return !q || fmt(r.path).toLowerCase().indexOf(q) >= 0; });
+  if (!list.length) { $('#chips').innerHTML = '<div class="help" style="padding:16px 4px">' + (leaves.length ? 'No fields match the filter.' : 'Add a payload to list its fields here.') + '</div>'; return; }
+  $('#chips').innerHTML = list.map(function (r) {
+    var parts = splitPath(fmt(r.path)), n = used[r.path];
+    return '<div class="chip' + (S.selected === r.path ? ' sel' : '') + '" draggable="true" role="button" tabindex="0" data-path="' + esc(r.path) + '" title="Drag onto a row, or click to select">' +
+      '<span class="grip" aria-hidden="true"></span><span class="cbody"><span class="cp"><span class="par">' + esc(parts[0]) + '</span><span class="key">' + esc(parts[1]) + '</span></span>' +
+      '<span class="cm"><span class="ty">' + esc(r.types) + '</span><span class="sm">' + esc(trunc(r.sample, 40)) + '</span></span></span>' +
+      (n ? '<span class="used" title="Mapped to ' + n + ' row' + (n > 1 ? 's' : '') + '">' + n + '</span>' : '') + '</div>';
+  }).join('');
+}
+function dropCell(f) {
+  if (f.path) {
+    var r = S.byPath[f.path];
+    return '<div class="dropin filled"><code>' + wbrPath(fmt(f.path)) + '</code>' + (r ? '<span class="ty">' + esc(r.types) + '</span>' : '<span class="ty" title="Not in the current payload">not in payload</span>') +
+      '<button class="x" type="button" data-clear="' + f.id + '" title="Remove mapping" aria-label="Remove mapping">×</button></div>';
+  }
+  if (S.selected) return '<div class="dropin pick" data-pick="' + f.id + '">Click to map ' + esc(trunc(fmt(S.selected), 36)) + '</div>';
+  return '<div class="dropin">Drop a payload field here</div>';
+}
+function valX(f, k) {
+  if (k === 'sn') return String(snX[f.id] || 0);
+  if (k === 'status') return f.path ? 'mapped' : 'unmapped';
+  if (k === 'path') return f.path ? fmt(f.path) : '';
+  if (k === 'logic') return f.logic || '';
+  return f.cells[+k.slice(1)] || '';
+}
+function visibleFields() {
+  var q = S.filterR.toLowerCase(), g = G.xl;
+  snX = {}; S.xl.rows.forEach(function (f, i) { snX[f.id] = i + 1; });
+  var list = S.xl.rows.filter(function (f) {
+    if (S.onlyUnmapped && f.path) return false;
+    if (q && (f.cells.join(' ') + ' ' + fmt(f.path) + ' ' + f.logic).toLowerCase().indexOf(q) < 0) return false;
+    return colMatch(g, valX, f);
+  });
+  return sortList(g, list, valX);
+}
+function cellX(k, f) {
+  var a = 'data-id="' + f.id + '" ';
+  switch (k) {
+    case 'sn': return '<td class="sn">' + snX[f.id] + '</td>';
+    case 'status': return '<td class="st"><span class="dot' + (f.path ? ' on' : '') + '"></span></td>';
+    case 'path': return '<td class="dropcell">' + dropCell(f) + '</td>';
+    case 'logic': return '<td>' + ta(a + 'data-f="logic"', f.logic) + '</td>';
+    case 'del': return '<td><button class="x" type="button" data-del="' + f.id + '" title="Remove this row" aria-label="Remove this row">×</button></td>';
+    default: var i = +k.slice(1); return '<td>' + ta(a + 'data-c="' + i + '"', f.cells[i]) + '</td>';
+  }
+}
+function renderFields() {
+  var body = $('#fieldBody'), span = G.xl.cols.length;
+  if (!S.xl.rows.length) {
+    body.innerHTML = '<tr><td colspan="' + span + '" class="empty">Upload your Excel sheet (or CSV) and it will appear here with all its columns. You can also paste rows copied from Excel, or add rows by hand.</td></tr>';
+    updateProgress(); return;
+  }
+  var list = visibleFields();
+  if (!list.length) { body.innerHTML = '<tr><td colspan="' + span + '" class="empty">No rows match the filters.</td></tr>'; updateProgress(); return; }
+  body.innerHTML = list.map(function (f) {
+    return '<tr data-id="' + f.id + '">' + G.xl.cols.map(function (c) { return cellX(c.k, f); }).join('') + '</tr>';
+  }).join('');
+  updateProgress(); autosizeAll(body);
+}
+function renderDatalists() {
+  var tabs = {}, als = {};
+  jdeList().forEach(function (f) { if (f.table) tabs[f.table] = 1; if (f.alias && !als[f.alias]) als[f.alias] = f.desc; });
+  $('#dl-table').innerHTML = Object.keys(tabs).map(function (t) { return '<option value="' + esc(t) + '"></option>'; }).join('');
+  $('#dl-alias').innerHTML = Object.keys(als).map(function (a) { return '<option value="' + esc(a) + '">' + esc(als[a]) + '</option>'; }).join('');
+}
+function renderAll() { renderStatus(); renderSheet(); renderLeft(); renderFields(); renderDatalists(); }
+function setTab(t) {
+  S.tab = t;
+  ['sheet', 'map'].forEach(function (n) {
+    $('#panel-' + n).hidden = n !== t;
+    $('#tab-' + n).setAttribute('aria-selected', n === t ? 'true' : 'false');
+  });
+  requestAnimationFrame(function () { autosizeAll($(t === 'sheet' ? '#sheetBody' : '#fieldBody')); });
+  save();
+}
+
+/* ---------- mapping actions ---------- */
+function rowById(id) { return S.xl.rows.filter(function (x) { return x.id === id; })[0]; }
+function assign(id, path) {
+  var f = rowById(id);
+  if (!f || !S.byPath[path]) return;
+  f.path = path; S.selected = null;
+  renderFields(); renderLeft(); save();
+}
+function afterPayloadEdit() {
+  if (S.sampleJson) {
+    S.sampleJson = false; S.maps = {};
+    S.xl.rows.forEach(function (f) { f.path = ''; });
+  }
+}
+function arm(btn, fn) {
+  btn.addEventListener('click', function () {
+    if (btn.dataset.armed) {
+      clearTimeout(btn._t); btn.textContent = btn.dataset.orig; btn.classList.remove('armed'); delete btn.dataset.armed;
+      fn(); return;
+    }
+    btn.dataset.orig = btn.textContent; btn.dataset.armed = '1'; btn.textContent = 'Click again to confirm'; btn.classList.add('armed');
+    btn._t = setTimeout(function () { btn.textContent = btn.dataset.orig; btn.classList.remove('armed'); delete btn.dataset.armed; }, 3500);
+  });
+}
+function resetAll() {
+  S.jsonText = ''; S.maps = {}; S.xl = { cols: [], rows: [] }; S.sampleJson = false; S.sampleJde = false; S.selected = null;
+  S.filterA = S.filterL = S.filterR = ''; S.onlyUnmapped = false; S.containers = false; S.arr = '[*]';
+  resetGrid('sheet'); resetGrid('xl'); lastWb = null; fillSheetSel([], '');
+  $('#jsonIn').value = ''; $('#filterA').value = ''; $('#filterL').value = ''; $('#filterR').value = '';
+  $('#contChk').checked = false; $('#unmChk').checked = false; $('#arrSel').value = '[*]'; $('#pasteJde').value = '';
+  try { localStorage.removeItem(LS_KEY); } catch (e) {}
+  rebuild(); buildHead('sheet'); buildHead('xl'); renderAll();
+  toast('Everything cleared.');
+}
+
+/* ---------- events ---------- */
+var parseT;
+$('#jsonIn').addEventListener('input', function (e) {
+  S.jsonText = e.target.value; afterPayloadEdit();
+  clearTimeout(parseT);
+  parseT = setTimeout(function () { rebuild(); renderAll(); save(); }, 350);
+});
+$('#jsonFile').addEventListener('change', function (e) {
+  var file = e.target.files[0]; if (!file) return;
+  var rd = new FileReader();
+  rd.onload = function () {
+    S.jsonText = String(rd.result); afterPayloadEdit(); $('#jsonIn').value = S.jsonText;
+    rebuild(); renderAll(); save();
+  };
+  rd.readAsText(file); e.target.value = '';
+});
+$('#fmtBtn').addEventListener('click', function () {
+  try { S.jsonText = JSON.stringify(JSON.parse(S.jsonText), null, 2); $('#jsonIn').value = S.jsonText; save(); } catch (e) { toast('Fix the JSON first, then format it.'); }
+});
+$('#exBtn').addEventListener('click', function () {
+  seedExample(); $('#jsonIn').value = S.jsonText; rebuild(); buildHead('xl'); renderAll(); save(); toast('Example payload and Excel data loaded.');
+});
+arm($('#clearJson'), function () {
+  afterPayloadEdit(); S.jsonText = ''; $('#jsonIn').value = ''; rebuild(); renderAll(); save(); toast('Payload cleared.');
+});
+arm($('#resetAll'), resetAll);
+$('#resetViewA').addEventListener('click', function () { resetView('sheet'); });
+$('#resetViewB').addEventListener('click', function () { resetView('xl'); });
+$('#arrSel').addEventListener('change', function (e) { S.arr = e.target.value; renderAll(); save(); });
+$('#tab-sheet').addEventListener('click', function () { setTab('sheet'); });
+$('#tab-map').addEventListener('click', function () { setTab('map'); });
+window.addEventListener('resize', function () {
+  clearTimeout(window._rz); window._rz = setTimeout(function () { autosizeAll($(S.tab === 'sheet' ? '#sheetBody' : '#fieldBody')); }, 150);
+});
+
+/* tab 1 */
+$('#filterA').addEventListener('input', function (e) { S.filterA = e.target.value; renderSheet(); });
+$('#contChk').addEventListener('change', function (e) { S.containers = e.target.checked; renderSheet(); });
+arm($('#clearSheet'), function () { S.maps = {}; renderSheet(); save(); toast('Mappings cleared.'); });
+$('#copyTsvA').addEventListener('click', function () {
+  var d = sheetData(); if (d.length < 2) { toast('Nothing to copy yet.'); return; }
+  copyText(toTsv(d), 'Copied ' + (d.length - 1) + ' rows. Paste into Excel.');
+});
+$('#copyCsvA').addEventListener('click', function () {
+  var d = sheetData(); if (d.length < 2) { toast('Nothing to copy yet.'); return; }
+  copyText(toCsv(d), 'Copied ' + (d.length - 1) + ' rows as CSV.');
+});
+function noEnter(e) { if (e.key === 'Enter' && !e.shiftKey && e.target.tagName === 'TEXTAREA') { e.preventDefault(); e.target.blur(); } }
+$('#sheetBody').addEventListener('keydown', noEnter);
+$('#sheetBody').addEventListener('input', function (e) {
+  var el = e.target, p = el.dataset.p, f = el.dataset.f;
+  if (!p || !f) return;
+  var m = (S.maps[p] = S.maps[p] || {});
+  m[f] = el.value;
+  if (el.tagName === 'TEXTAREA') autosize(el);
+  var dot = el.closest('tr').querySelector('.dot');
+  if (dot) dot.classList.toggle('on', !!(m.table && m.alias));
+  updateProgress(); save();
+});
+$('#sheetBody').addEventListener('change', function (e) {
+  var el = e.target; if (el.dataset.f !== 'alias') return;
+  var p = el.dataset.p, m = (S.maps[p] = S.maps[p] || {}), v = el.value.trim().toLowerCase();
+  var cand = jdeList().filter(function (f) { return f.alias.toLowerCase() === v && (!m.table || f.table.toLowerCase() === m.table.toLowerCase()); });
+  if (cand.length !== 1) return;
+  var f = cand[0], tr = el.closest('tr');
+  if (!m.table) { m.table = f.table; tr.querySelector('[data-f="table"]').value = f.table; }
+  if (!m.desc) { m.desc = f.desc; var d = tr.querySelector('[data-f="desc"]'); d.value = f.desc; autosize(d); }
+  var dot = tr.querySelector('.dot'); if (dot) dot.classList.toggle('on', !!(m.table && m.alias));
+  updateProgress(); save();
+});
+
+/* tab 2 */
+$('#filterL').addEventListener('input', function (e) { S.filterL = e.target.value; renderLeft(); });
+$('#filterR').addEventListener('input', function (e) { S.filterR = e.target.value; renderFields(); });
+$('#unmChk').addEventListener('change', function (e) { S.onlyUnmapped = e.target.checked; renderFields(); });
+$('#jdeFile').addEventListener('change', function (e) { var f = e.target.files[0]; if (f) handleFieldFile(f); e.target.value = ''; });
+$('#sheetSel').addEventListener('change', function (e) { if (lastWb) readSheet(e.target.value); });
+$('#importPaste').addEventListener('click', function () {
+  var t = $('#pasteJde').value; if (!t.trim()) { toast('Paste some rows first.'); return; }
+  lastWb = null; fillSheetSel([], ''); importSheet(parseDelimited(t), 'pasted text');
+});
+$('#addField').addEventListener('click', function () {
+  if (!S.xl.cols.length) { S.xl.cols = ['Table', 'Alias', 'Description']; resetGrid('xl'); buildHead('xl'); }
+  S.xl.rows.push({ id: uid(), cells: S.xl.cols.map(function () { return ''; }), path: '', logic: '' });
+  S.filterR = ''; $('#filterR').value = ''; S.onlyUnmapped = false; $('#unmChk').checked = false;
+  G.xl.filters = {}; G.xl.sort = null; buildHead('xl');
+  renderFields(); save();
+  var last = $('#fieldBody').lastElementChild; if (last) { var i = last.querySelector('textarea'); if (i) { i.focus(); last.scrollIntoView({ block: 'nearest' }); } }
+});
+arm($('#clearMaps'), function () {
+  S.xl.rows.forEach(function (f) { f.path = ''; }); S.selected = null; renderFields(); renderLeft(); save(); toast('All JSON paths cleared.');
+});
+arm($('#removeXl'), function () {
+  S.xl = { cols: [], rows: [] }; S.sampleJde = false; lastWb = null; fillSheetSel([], '');
+  resetGrid('xl'); buildHead('xl'); renderFields(); renderLeft(); renderDatalists(); renderStatus(); save(); toast('Excel data removed.');
+});
+$('#copyTsvB').addEventListener('click', function () {
+  var d = fieldData(); if (d.length < 2) { toast('Nothing to copy yet.'); return; }
+  copyText(toTsv(d), 'Copied ' + (d.length - 1) + ' rows. Paste into Excel.');
+});
+$('#copyClose').addEventListener('click', function () { $('#copybox').hidden = true; });
+
+$('#fieldBody').addEventListener('keydown', noEnter);
+$('#fieldBody').addEventListener('input', function (e) {
+  var el = e.target, f = el.dataset.id ? rowById(el.dataset.id) : null; if (!f) return;
+  if (el.dataset.c !== undefined) f.cells[+el.dataset.c] = el.value; else if (el.dataset.f === 'logic') f.logic = el.value;
+  autosize(el); save();
+});
+$('#fieldBody').addEventListener('change', function (e) { if (e.target.dataset.c !== undefined) renderDatalists(); });
+$('#fieldBody').addEventListener('click', function (e) {
+  var t = e.target;
+  var clr = t.closest('[data-clear]');
+  if (clr) { var f = rowById(clr.dataset.clear); if (f) { f.path = ''; renderFields(); renderLeft(); save(); } return; }
+  var del = t.closest('[data-del]');
+  if (del) { S.xl.rows = S.xl.rows.filter(function (x) { return x.id !== del.dataset.del; }); renderFields(); renderLeft(); renderDatalists(); save(); return; }
+  var pick = t.closest('[data-pick]');
+  if (pick && S.selected) assign(pick.dataset.pick, S.selected);
+});
+
+/* payload chips: drag source + click-to-select fallback */
+var chipsEl = $('#chips');
+chipsEl.addEventListener('dragstart', function (e) {
+  var c = e.target.closest('.chip'); if (!c) return;
+  e.dataTransfer.setData('text/plain', c.dataset.path); e.dataTransfer.effectAllowed = 'copy';
+  c.classList.add('dragging');
+});
+chipsEl.addEventListener('dragend', function (e) {
+  var c = e.target.closest('.chip'); if (c) c.classList.remove('dragging');
+  document.querySelectorAll('tr.over').forEach(function (r) { r.classList.remove('over'); });
+});
+chipsEl.addEventListener('click', function (e) {
+  var c = e.target.closest('.chip'); if (!c) return;
+  S.selected = S.selected === c.dataset.path ? null : c.dataset.path; renderLeft(); renderFields();
+});
+chipsEl.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  var c = e.target.closest('.chip'); if (!c) return;
+  e.preventDefault(); S.selected = S.selected === c.dataset.path ? null : c.dataset.path; renderLeft(); renderFields();
+  var again = document.querySelector('.chip[data-path="' + CSS.escape(c.dataset.path) + '"]'); if (again) again.focus();
+});
+
+/* Excel rows: drop targets */
+var fb = $('#fieldBody');
+fb.addEventListener('dragover', function (e) {
+  var tr = e.target.closest('tr[data-id]'); if (!tr) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; tr.classList.add('over');
+});
+fb.addEventListener('dragleave', function (e) {
+  var tr = e.target.closest('tr[data-id]'); if (tr && !tr.contains(e.relatedTarget)) tr.classList.remove('over');
+});
+fb.addEventListener('drop', function (e) {
+  var tr = e.target.closest('tr[data-id]'); if (!tr) return;
+  e.preventDefault(); tr.classList.remove('over');
+  var path = e.dataTransfer.getData('text/plain');
+  if (path && S.byPath[path]) assign(tr.dataset.id, path); else toast('Drag a field from the payload list.');
+});
+
+/* ---------- boot ---------- */
+loadState();
+$('#jsonIn').value = S.jsonText;
+$('#arrSel').value = S.arr;
+buildHead('sheet'); buildHead('xl');
+bindGrid('sheet', renderSheet); bindGrid('xl', renderFields);
+rebuild(); renderAll(); setTab(S.tab);
+})();
+</script>
+
+</body>
+</html>
